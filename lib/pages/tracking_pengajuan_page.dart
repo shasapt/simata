@@ -10,6 +10,7 @@ library;
 import 'package:flutter/material.dart';
 
 import '../core/constants/app_constants.dart';
+import '../core/theme/app_colors.dart';
 import '../models/pengajuan.dart';
 import '../services/pengajuan_service.dart';
 
@@ -73,40 +74,66 @@ class _TrackingPengajuanPageState extends State<TrackingPengajuanPage> {
     return Scaffold(
       appBar: AppBar(title: const Text(AppConstants.pageTracking)),
       body: Center(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const Text(
-                'Masukkan nomor tracking pengajuan Anda untuk '
-                'melihat status dan tahapan proses.',
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 16, height: 1.5),
-              ),
-              const SizedBox(height: 24),
-              TextField(
-                controller: _nomorController,
-                textCapitalization: TextCapitalization.characters,
-                decoration: InputDecoration(
-                  labelText: 'Nomor Tracking',
-                  hintText: 'Contoh: SIMATA-001',
-                  errorText: _error,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 720),
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const SizedBox(height: 16),
+                const Text(
+                  'Masukkan nomor tracking pengajuan Anda untuk '
+                  'melihat status dan tahapan proses.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 16, height: 1.5),
                 ),
-                onSubmitted: (_) => _cariPengajuan(),
-              ),
-              const SizedBox(height: 16),
-              FilledButton(
-                onPressed: _searching ? null : _cariPengajuan,
-                child: _searching
-                    ? const SizedBox(
-                        height: 20,
-                        width: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const Text('Cari Pengajuan'),
-              ),
-            ],
+                const SizedBox(height: 24),
+                Card(
+                  margin: EdgeInsets.zero,
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        TextField(
+                          controller: _nomorController,
+                          textCapitalization:
+                              TextCapitalization.characters,
+                          decoration: InputDecoration(
+                            labelText: 'Nomor Tracking',
+                            hintText: 'Contoh: SIMATA-001',
+                            errorText: _error,
+                            prefixIcon: const Icon(Icons.tag),
+                          ),
+                          onSubmitted: (_) => _cariPengajuan(),
+                        ),
+                        const SizedBox(height: 16),
+                        FilledButton(
+                          onPressed: _searching ? null : _cariPengajuan,
+                          child: _searching
+                              ? const SizedBox(
+                                  height: 20,
+                                  width: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
+                                )
+                              : const Text('Cari Pengajuan'),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                const Text(
+                  'Nomor tracking contoh (data simulasi): '
+                  'SIMATA-001, SIMATA-002, SIMATA-003',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 14, color: AppColors.neutral),
+                ),
+              ],
+            ),
           ),
         ),
       ),
