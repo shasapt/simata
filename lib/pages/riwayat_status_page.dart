@@ -1,8 +1,6 @@
 /// H6 — Riwayat Status (Should).
 /// Menampilkan urutan perubahan status pengajuan dari data tersimpan.
 /// Dibuka dari Detail Status Pengajuan / Kelola Pengajuan.
-///
-/// TODO (Minggu 8+): ambil riwayat dari koleksi Firestore.
 library;
 
 import 'package:flutter/material.dart';
@@ -25,60 +23,169 @@ class RiwayatStatusPage extends StatelessWidget {
               status: 'Diajukan',
             );
 
+    final List<String> riwayat = pengajuan.riwayatStatus.reversed.toList();
+
     return Scaffold(
       appBar: AppBar(title: const Text(AppConstants.pageRiwayatStatus)),
-      body: pengajuan.riwayatStatus.isEmpty
-          ? const Center(
-              child: Text('Belum ada riwayat perubahan status.'),
-            )
-          : ListView.builder(
-              padding: const EdgeInsets.all(16),
-              itemCount: pengajuan.riwayatStatus.length,
-              itemBuilder: (BuildContext context, int index) {
-                final String entri = pengajuan.riwayatStatus[index];
-                return Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Column(
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 720),
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Card(
+                  margin: EdgeInsets.zero,
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Row(
                       children: [
-                        Container(
-                          width: 12,
-                          height: 12,
-                          decoration: const BoxDecoration(
-                            color: AppColors.primary,
-                            shape: BoxShape.circle,
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment:
+                                CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                pengajuan.nomorTracking,
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.textPrimary,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(pengajuan.jenisLayanan),
+                            ],
                           ),
                         ),
-                        if (index != pengajuan.riwayatStatus.length - 1)
-                          Container(
-                            width: 2,
-                            height: 40,
-                            color: AppColors.neutral,
-                          ),
+                        StatusBadge(status: pengajuan.status),
                       ],
                     ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.only(bottom: 24),
-                        child: Text(
-                          entri,
-                          style: const TextStyle(
-                            fontSize: 16,
-                            color: AppColors.textPrimary,
+                  ),
+                ),
+                const SizedBox(height: 24),
+                if (riwayat.isEmpty)
+                  const Center(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(vertical: 32),
+                      child: Text('Belum ada riwayat perubahan status.'),
+                    ),
+                  )
+                else
+                  for (int i = 0; i < riwayat.length; i++)
+                    _BarisRiwayat(
+                      entri: riwayat[i],
+                      terbaru: i == 0,
+                      terakhir: i == riwayat.length - 1,
+                    ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _BarisRiwayat extends StatelessWidget {
+  const _BarisRiwayat({
+    required this.entri,
+    required this.terbaru,
+    required this.terakhir,
+  });
+
+  final String entri;
+  final bool terbaru;
+  final bool terakhir;
+
+  @override
+  Widget build(BuildContext context) {
+    // Format data: "Diverifikasi — 14 Oktober 2026".
+    final List<String> bagian = entri.split(' — ');
+    final String status = bagian.first;
+    final String tanggal = bagian.length > 1 ? bagian.sublist(1).join(' — ') : '';
+
+    return IntrinsicHeight(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Column(
+            children: [
+              Container(
+                width: 16,
+                height: 16,
+                decoration: BoxDecoration(
+                  color: terbaru ? AppColors.primary : Colors.white,
+                  shape: BoxShape.circle,
+                  border: Border.all(color: AppColors.primary, width: 2),
+                ),
+              ),
+              if (!terakhir)
+                const Expanded(
+                  child: SizedBox(
+                    width: 2,
+                    child: ColoredBox(color: AppColors.neutral),
+                  ),
+                ),
+            ],
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Padding(
+              padding: EdgeInsets.only(bottom: terakhir ? 0 : 20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Text(
+                        status,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight:
+                              terbaru ? FontWeight.bold : FontWeight.normal,
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                      if (terbaru) ...[
+                        const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 2,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppColors.primary.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: const Text(
+                            'Terbaru',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: AppColors.primary,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                         ),
+                      ],
+                    ],
+                  ),
+                  if (tanggal.isNotEmpty) ...[
+                    const SizedBox(height: 2),
+                    Text(
+                      tanggal,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        color: AppColors.neutral,
                       ),
                     ),
                   ],
-                );
-              },
+                ],
+              ),
             ),
-      bottomNavigationBar: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: StatusBadge(status: pengajuan.status),
-        ),
+          ),
+        ],
       ),
     );
   }

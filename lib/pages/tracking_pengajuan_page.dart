@@ -23,7 +23,7 @@ class TrackingPengajuanPage extends StatefulWidget {
 
 class _TrackingPengajuanPageState extends State<TrackingPengajuanPage> {
   final TextEditingController _nomorController = TextEditingController();
-  final PengajuanService _service = const PengajuanService();
+  final PengajuanService _service = PengajuanService.instance;
 
   bool _searching = false;
   String? _error;
